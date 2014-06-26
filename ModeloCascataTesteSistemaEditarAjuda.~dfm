@@ -1,0 +1,49 @@
+object formModeloCascataTesteSistemaEditarAjuda: TformModeloCascataTesteSistemaEditarAjuda
+  Left = 245
+  Top = 165
+  BorderStyle = bsToolWindow
+  Caption = 'Ferramenta AuxEnSoft - Ajuda'
+  ClientHeight = 175
+  ClientWidth = 390
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  OldCreateOrder = False
+  OnClose = FormClose
+  OnCreate = FormCreate
+  PixelsPerInch = 96
+  TextHeight = 13
+  object MemoAjuda: TMemo
+    Left = 8
+    Top = 8
+    Width = 369
+    Height = 121
+    Lines.Strings = (
+      
+        'Para editar um teste de unidade, selecione seu requisito e use o' +
+        ' bot'#227'o '
+      '"Selecionar" e ao lado direito edite seus dados;'
+      
+        'Para excluir um teste de unidade, selecione seu requisito e use ' +
+        'o bot'#227'o '
+      '"Selecionar" e ao lado direito use o bot'#227'o "Excluir";'
+      
+        'Para cancelar a edi'#231#227'o de um teste de unidade use o bot'#227'o "Cance' +
+        'lar";'
+      'Para filtrar requisitos por nome use o campo "Procurar";')
+    ReadOnly = True
+    TabOrder = 0
+  end
+  object btnVoltar: TBitBtn
+    Left = 144
+    Top = 144
+    Width = 75
+    Height = 25
+    Caption = 'Voltar'
+    TabOrder = 1
+    OnClick = btnVoltarClick
+  end
+end

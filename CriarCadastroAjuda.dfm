@@ -1,0 +1,45 @@
+object FormCriarCadastroAjuda: TFormCriarCadastroAjuda
+  Left = 441
+  Top = 254
+  BorderStyle = bsToolWindow
+  Caption = 'Ferramenta AuxEnSoft - Ajuda'
+  ClientHeight = 187
+  ClientWidth = 304
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  OldCreateOrder = False
+  OnClose = FormClose
+  OnCreate = FormCreate
+  PixelsPerInch = 96
+  TextHeight = 13
+  object memoajuda: TMemo
+    Left = 16
+    Top = 16
+    Width = 265
+    Height = 129
+    Lines.Strings = (
+      'Os campos com * s'#227'o obrigat'#243'rios;'
+      'Insira os dados para cadastro e clique no '
+      'bot'#227'o "Cadastrar";'
+      'N'#227'o '#233' aceito nenhum campo vazio '
+      'ou excessivos espa'#231'os como cadastro;'
+      'Para limpar os campos clique no bot'#227'o '
+      '"Limpar";'
+      'Para voltar clique no bot'#227'o "Voltar".')
+    ReadOnly = True
+    TabOrder = 0
+  end
+  object btnvoltar: TBitBtn
+    Left = 112
+    Top = 152
+    Width = 75
+    Height = 25
+    Caption = 'Voltar'
+    TabOrder = 1
+    OnClick = btnvoltarClick
+  end
+end

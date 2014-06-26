@@ -1,0 +1,412 @@
+unit ModelCascataTesteUnidadeEditar;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, Menus, DB, ZAbstractRODataset, ZAbstractDataset, ZDataset,
+  ComCtrls, StdCtrls, Buttons, ExtCtrls, Grids, DBGrids;
+
+type
+  TFormModeloCascataTesteUnidadeEditar = class(TForm)
+    PanelLista: TPanel;
+    lblTestes: TLabel;
+    gridtabelas: TDBGrid;
+    edtProcurar: TLabeledEdit;
+    btnVoltar: TBitBtn;
+    btnLimpar1: TBitBtn;
+    labelCriarTesteUnidade: TPanel;
+    lblTitulo: TLabel;
+    lblDescricao: TLabel;
+    lblTipo: TLabel;
+    lblSituacao: TLabel;
+    edtIdentificador: TLabeledEdit;
+    edtNome: TLabeledEdit;
+    memoDescricao: TMemo;
+    cboxTipo: TComboBox;
+    cboxSituacao: TComboBox;
+    edtDataTeste: TLabeledEdit;
+    btnSalvar: TBitBtn;
+    btncancelar: TBitBtn;
+    Query: TZQuery;
+    Source: TDataSource;
+    MainMenu1: TMainMenu;
+    Ajuda1: TMenuItem;
+    Logoff1: TMenuItem;
+    btnExcluir: TBitBtn;
+    btnEditar: TBitBtn;
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure Logoff1Click(Sender: TObject);
+    procedure btncancelarClick(Sender: TObject);
+    procedure edtIdentificadorChange(Sender: TObject);
+    procedure edtProcurarChange(Sender: TObject);
+    procedure btnEditarClick(Sender: TObject);
+    procedure btnLimpar1Click(Sender: TObject);
+    procedure btnVoltarClick(Sender: TObject);
+    procedure btnExcluirClick(Sender: TObject);
+    procedure btnSalvarClick(Sender: TObject);
+    procedure Ajuda1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FormModeloCascataTesteUnidadeEditar: TFormModeloCascataTesteUnidadeEditar;
+
+implementation
+
+uses ModeloCascata, ModelCascataTesteUnidadeEditarAjuda;
+
+{$R *.dfm}
+
+procedure TFormModeloCascataTesteUnidadeEditar.FormCreate(Sender: TObject);
+begin
+  //Centraliza form
+  Left := (GetSystemMetrics(SM_CXSCREEN) - Width) div 2;
+  Top := (GetSystemMetrics(SM_CYSCREEN) - Height) div 2;
+  //Atualiza grid testeunidade
+  with query do
+  begin
+    query.close;
+    query.sql.clear;
+    query.sql.text:=('select identificador as ID, nome as Nome from tbtesteunidade where codigo_projeto=(select codigo_projeto from tbprojetoacesso order by codigo desc limit 1) order by nome asc');
+    query.open;
+  end;
+end;
+
+procedure TFormModeloCascataTesteUnidadeEditar.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  //Fecha e libera memória
+  FormModeloCascataTesteUnidadeEditar.Release;
+  FormModeloCascataTesteUnidadeEditar:=Nil;
+end;
+
+procedure TFormModeloCascataTesteUnidadeEditar.Logoff1Click(
+  Sender: TObject);
+begin
+  //Faz logoff
+  FormModeloCascata.Close;
+  FormModeloCascataTesteUnidadeEditar.Close;
+end;
+
+procedure TFormModeloCascataTesteUnidadeEditar.btncancelarClick(
+  Sender: TObject);
+begin
+  //Limpa os campos
+  edtIdentificador.Clear;
+  edtNome.Clear;
+  memoDescricao.Lines.clear;
+  cboxTipo.ItemIndex:=-1;
+  cboxSituacao.ItemIndex:=-1;
+  edtDataTeste.clear;
+end;
+
+procedure TFormModeloCascataTesteUnidadeEditar.edtIdentificadorChange(
+  Sender: TObject);
+begin
+  //Se estiver vazio
+  if (edtIdentificador.text='') then
+  begin
+    edtIdentificador.Enabled:=False;
+    edtNome.Enabled:=False;
+    lblDescricao.Enabled:=False;
+    memoDescricao.Enabled:=False;
+    lblTipo.Enabled:=False;
+    cboxTipo.Enabled:=False;
+    lblSituacao.Enabled:=false;
+    cboxSituacao.Enabled:=False;
+    edtDataTeste.Enabled:=False;
+    btnSalvar.Enabled:=False;
+    btnCancelar.Enabled:=False;
+    edtProcurar.Enabled:=True;
+    btnEditar.Enabled:=True;
+    btnExcluir.Enabled:=True;
+    btnLimpar1.Enabled:=True;
+    btnVoltar.Enabled:=True;
+  end
+  else
+  begin
+    edtIdentificador.Enabled:=True;
+    edtNome.Enabled:=True;
+    lblDescricao.Enabled:=True;
+    memoDescricao.Enabled:=True;
+    lblTipo.Enabled:=True;
+    cboxTipo.Enabled:=True;
+    lblSituacao.Enabled:=True;
+    cboxSituacao.Enabled:=True;
+    edtDataTeste.Enabled:=True;
+    btnSalvar.Enabled:=True;
+    btnCancelar.Enabled:=True;
+    edtProcurar.Enabled:=False;
+    btnEditar.Enabled:=False;
+    btnExcluir.Enabled:=False;
+    btnLimpar1.Enabled:=False;
+    btnVoltar.Enabled:=False;
+  end;
+end;
+
+procedure TFormModeloCascataTesteUnidadeEditar.edtProcurarChange(
+  Sender: TObject);
+begin
+  //Seleciona dados de acordo com o nome no edt procurar
+  with query do
+  begin
+    query.close;
+    query.sql.Clear;
+   query.sql.text:=('select identificador as ID, nome as Nome from tbtesteunidade where nome like "'+edtProcurar.Text+'%" and codigo_projeto=(select codigo_projeto from tbprojetoacesso order by codigo desc limit 1)');
+    query.open;
+  end;
+end;
+
+procedure TFormModeloCascataTesteUnidadeEditar.btnEditarClick(
+  Sender: TObject);
+var
+  id,nome,tipo,situacao:string;
+begin
+  //seleciona pelo id
+  id:=(gridtabelas.Columns.Items[0].Field).AsString;
+  //Seleciona teste unidade pelo nome
+  nome:=(gridtabelas.Columns.Items[1].Field).AsString;
+  //Se vazio
+  if (id='') or (nome='') then
+  begin
+    showmessage('Selecione um teste de unidade da lista!');
+    gridtabelas.SetFocus;
+    Abort;
+  end;
+  //Seleciona e insere nos campos
+  with query do
+  begin
+    query.close;
+    query.sql.Clear;
+    query.sql.text:=('select * from tbtesteunidade where identificador="'+id+'" and nome="'+nome+'" and codigo_projeto=(select codigo_projeto from tbprojetoacesso order by codigo desc limit 1)');
+    query.open;
+    edtIdentificador.text:=Query.FieldByName('identificador').AsString;
+    edtNome.text:=Query.FieldByName('nome').AsString;
+    memoDescricao.Lines.Text:=Query.FieldByName('descricao').AsString;
+    tipo:=Query.FieldByName('tipo').AsString;
+    situacao:=Query.FieldByName('situacao').AsString;
+    edtDataTeste.text:=Query.FieldByName('datateste').AsString;
+  end;
+  //Seta cboxTipo
+  if (tipo='DATA') then
+  begin
+    cboxTipo.ItemIndex:=0;
+  end;
+  if (tipo='NÚMEROS') then
+  begin
+    cboxTipo.ItemIndex:=1;
+  end;
+  if (tipo='SENHA') then
+  begin
+    cboxTipo.ItemIndex:=2;
+  end;
+  if (tipo='DOMÍNIO') then
+  begin
+    cboxTipo.ItemIndex:=3;
+  end;
+  if (tipo='CPF/CNPJ, ETC') then
+  begin
+    cboxTipo.ItemIndex:=4;
+  end;
+  if (tipo='OUTROS') then
+  begin
+    cboxTipo.ItemIndex:=5;
+  end;
+  //Seta situação
+  if (situacao='APROVADO') then
+  begin
+    cboxSituacao.ItemIndex:=0;
+  end;
+  if (situacao='PENDENTE') then
+  begin
+    cboxSituacao.ItemIndex:=1;
+  end;
+  if (situacao='REPROVADO') then
+  begin
+    cboxSituacao.ItemIndex:=2;
+  end;
+  //Atua  liza lista testeunidade
+  with query do
+  begin
+    query.close;
+    query.sql.clear;
+    query.sql.text:=('select identificador as ID, nome as Nome from tbtesteunidade where codigo_projeto=(select codigo_projeto from tbprojetoacesso order by codigo desc limit 1)');
+    query.open;
+  end;
+end;
+
+procedure TFormModeloCascataTesteUnidadeEditar.btnLimpar1Click(
+  Sender: TObject);
+begin
+ //Limpa edtProcurar
+ edtProcurar.Clear;
+end;
+
+procedure TFormModeloCascataTesteUnidadeEditar.btnVoltarClick(
+  Sender: TObject);
+begin
+  //Fecha form
+  FormModeloCascataTesteUnidadeEditar.Close;
+end;
+
+procedure TFormModeloCascataTesteUnidadeEditar.btnExcluirClick(
+  Sender: TObject);
+var
+  resposta:integer;
+  id,nome,codigo_projeto:string;
+begin
+  //seleciona pelo id
+  id:=(gridtabelas.Columns.Items[0].Field).AsString;
+  //Seleciona teste unidade pelo nome
+  nome:=(gridtabelas.Columns.Items[1].Field).AsString;
+  //Se estiver vazio
+  if (id='') or (nome='') then
+  begin
+    showmessage('Selecione um teste de unidade da lista!');
+    gridtabelas.SetFocus;
+    Abort;
+  end;
+  //Seleciona codigo projeto
+  with query do
+  begin
+    query.close;
+    query.sql.clear;
+    query.sql.text:=('select codigo_projeto from tbprojetoacesso order by codigo desc limit 1');
+    query.open;
+    codigo_projeto:=Query.FieldByName('codigo_projeto').AsString;
+  end;
+  //Faz questionamento
+  resposta:=messagedlg('Você deseja excluir o teste de unidade ID="'+id+'" e Nome="'+nome+'"?',mtinformation,mbokcancel,0);
+  //Se sim
+  if (resposta=1) then
+  begin
+    with query do
+    begin
+      query.close;
+      query.sql.clear;
+      query.sql.text:=('delete from tbtesteunidade where identificador="'+id+'" and nome="'+nome+'" and codigo_projeto="'+codigo_projeto+'"');
+      query.ExecSql;
+    end;
+    showmessage('Teste de unidade excluido com sucesso!');
+  end;
+  //atualiza teste de unidade
+  with query do
+  begin
+    query.Close;
+    query.sql.clear;
+    query.sql.text:=('select identificador as ID, nome as Nome from tbtesteunidade where codigo_projeto=(select codigo_projeto from tbprojetoacesso order by codigo desc limit 1)');
+    query.open;
+  end;
+
+end;
+
+procedure TFormModeloCascataTesteUnidadeEditar.btnSalvarClick(
+  Sender: TObject);
+var
+  codigo_projeto,tamanho,i,cont:integer;
+  palavra,letra:string;
+begin
+  //Se estiver vazio
+  if (memoDescricao.Lines.text='') then
+  begin
+    showmessage('O campo descrição é obrigatório!');
+    memoDescricao.SetFocus;
+    Abort;
+  end;
+  if (cboxTipo.Text='') then
+  begin
+    showmessage('O campo tipo é obrigatório!');
+    cboxTipo.SetFocus;
+    Abort;
+  end;
+  if (cboxSituacao.text='') then
+  begin
+    showmessage('O campo situação é obrigatório!');
+    cboxSituacao.SetFocus;
+    Abort;
+  end;
+  //Se existir mais espaços do que letras
+  cont:=0;
+  palavra:=memoDescricao.Lines.Text;
+  tamanho:=length(palavra);
+  for i:=1 to tamanho do
+  begin
+    letra:=copy(palavra,i,1);
+      if (letra=' ') then
+      begin
+        cont:=cont-1;
+      end
+      else
+      begin
+        cont:=cont+2;
+      end;
+  end;
+  if (cont<0) then
+  begin
+    showmessage('O campo descrição contém mais espaços do que letras!');
+    memoDescricao.SetFocus;
+    Abort;
+  end;
+  //seleciona codigo_projeto
+  with query do
+  begin
+    query.close;
+    query.sql.clear;
+    query.sql.text:=('select codigo_projeto from tbprojetoacesso order by codigo desc limit 1');
+    query.open;
+    codigo_projeto:=Query.FieldByName('codigo_projeto').AsInteger;
+  end;
+  //Atualiza tabela
+  with query do
+  begin
+    query.close;
+    query.sql.clear;
+    query.sql.text:=('update tbtesteunidade set descricao="'+memoDescricao.Lines.Text+'" where identificador="'+edtIdentificador.Text+'" and nome="'+edtNome.text+'" and codigo_projeto="'+IntToStr(codigo_projeto)+'"');
+    query.ExecSQL;
+  end;
+  with query do
+  begin
+    query.close;
+    query.sql.clear;
+    query.sql.text:=('update tbtesteunidade set tipo="'+cboxTipo.Text+'" where identificador="'+edtIdentificador.Text+'" and nome="'+edtNome.text+'" and codigo_projeto="'+IntToStr(codigo_projeto)+'"');
+    query.ExecSQL;
+  end;
+  with query do
+  begin
+    query.close;
+    query.sql.clear;
+    query.sql.text:=('update tbtesteunidade set situacao="'+cboxSituacao.text+'" where identificador="'+edtIdentificador.Text+'" and nome="'+edtNome.text+'" and codigo_projeto="'+IntToStr(codigo_projeto)+'"');
+    query.ExecSQL;
+  end;
+
+  //Atualiza lista de testes de unidade
+  with query do
+  begin
+    query.close;
+    query.sql.clear;
+    query.sql.text:=('select identificador as ID, nome as Nome from tbtesteunidade where codigo_projeto=(select codigo_projeto from tbprojetoacesso order by codigo desc limit 1)');
+    query.open;
+  end;
+  showmessage('Teste de unidade salvo!');
+  //Limpa os campos
+  edtIdentificador.Clear;
+  edtNome.Clear;
+  memoDescricao.Lines.Clear;
+  cboxTipo.ItemIndex:=-1;
+  cboxSituacao.ItemIndex:=-1;
+  edtDataTeste.Clear;
+end;
+
+procedure TFormModeloCascataTesteUnidadeEditar.Ajuda1Click(
+  Sender: TObject);
+begin
+  //Cria e exibe
+  Application.CreateForm(TFormModeloCascataTesteUnidadeEditarAjuda, FormModeloCascataTesteUnidadeEditarAjuda);
+  FormModeloCascataTesteUnidadeEditarAjuda.ShowModal;
+end;
+
+end.

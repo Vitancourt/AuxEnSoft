@@ -1,0 +1,44 @@
+unit ModeloCascataTesteUnidadeCriarAjuda;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, Buttons;
+
+type
+  TFormModeloCascataTesteUnidadeCriarAjuda = class(TForm)
+    btnVoltar: TBitBtn;
+    memoAjuda: TMemo;
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FormModeloCascataTesteUnidadeCriarAjuda: TFormModeloCascataTesteUnidadeCriarAjuda;
+
+implementation
+
+{$R *.dfm}
+
+procedure TFormModeloCascataTesteUnidadeCriarAjuda.FormCreate(
+  Sender: TObject);
+begin
+  //Centraliza form
+  Left := (GetSystemMetrics(SM_CXSCREEN) - Width) div 2;
+  Top := (GetSystemMetrics(SM_CYSCREEN) - Height) div 2;
+end;
+
+procedure TFormModeloCascataTesteUnidadeCriarAjuda.FormClose(
+  Sender: TObject; var Action: TCloseAction);
+begin
+  //Fechar e liberar memoria
+  FormModeloCascataTesteUnidadeCriarAjuda.Release;
+  FormModeloCascataTesteUnidadeCriarAjuda:=Nil;
+end;
+
+end.

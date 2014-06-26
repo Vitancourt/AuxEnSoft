@@ -1,0 +1,181 @@
+unit CriarCadastro;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ExtCtrls, Menus, Buttons, DB, ZAbstractRODataset,
+  ZAbstractDataset, ZDataset, ZAbstractConnection, ZConnection;
+
+type
+  TFormCriarCadastro = class(TForm)
+    Panel1: TPanel;
+    Menu: TMainMenu;
+    Ajuda1: TMenuItem;
+    Label1: TLabel;
+    edtusuario: TLabeledEdit;
+    edtsenha: TLabeledEdit;
+    edtdatacad: TLabeledEdit;
+    btncadastrar: TBitBtn;
+    btnlimpar: TBitBtn;
+    btnvoltar: TBitBtn;
+    Query: TZQuery;
+    Sair: TMenuItem;
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure btnvoltarClick(Sender: TObject);
+    procedure Ajuda1Click(Sender: TObject);
+    procedure btnlimparClick(Sender: TObject);
+    procedure btncadastrarClick(Sender: TObject);
+    procedure SairClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FormCriarCadastro: TFormCriarCadastro;
+
+implementation
+
+uses Inicio, CriarCadastroAjuda;
+
+{$R *.dfm}
+
+procedure TFormCriarCadastro.FormCreate(Sender: TObject);
+begin
+  //Centraliza form
+  Left := (GetSystemMetrics(SM_CXSCREEN) - Width) div 2;
+  Top := (GetSystemMetrics(SM_CYSCREEN) - Height) div 2;
+  //Ler data do sistema
+  edtdatacad.text:=DateToStr(Date);
+end;
+
+procedure TFormCriarCadastro.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  //Fechar form
+  FormInicio.show;
+  FormCriarCadastro.close;
+end;
+
+procedure TFormCriarCadastro.btnvoltarClick(Sender: TObject);
+begin
+  FormInicio.show;
+  FormCriarCadastro.close;
+end;
+
+procedure TFormCriarCadastro.Ajuda1Click(Sender: TObject);
+begin
+  //Criar e exibir form
+  Application.CreateForm(TFormCriarCadastroAjuda,FormCriarCadastroAjuda);
+  FormCriarCadastroAjuda.showmodal;
+end;
+
+procedure TFormCriarCadastro.btnlimparClick(Sender: TObject);
+begin
+  //Limpar campos
+  edtusuario.clear;
+  edtsenha.clear;
+  edtdatacad.text:=DatetoStr(Date);
+  edtusuario.SetFocus;
+end;
+
+procedure TFormCriarCadastro.btncadastrarClick(Sender: TObject);
+var
+  tamanho,i,cont:integer;
+  palavra,letra:string;
+  conexao:boolean;
+begin
+  //Validar campos vazios
+    if (edtusuario.text='') then
+    begin
+      messagedlg('AuxEnSoft não aceita campos vazios, por favor complete todos os campos.',mterror,mbokcancel,0);
+      edtusuario.SetFocus;
+      abort;
+    end;
+    if (edtsenha.text='') then
+    begin
+      messagedlg('AuxEnSoft não aceita campos vazios, por favor complete todos os campos.',mterror,mbokcancel,0);
+      edtsenha.setfocus;
+      abort;
+    end;
+  //Validando campos com espaços excessivos
+  tamanho:=length(edtusuario.text);
+  palavra:=edtusuario.text;
+  cont:=0;
+    for i:=1 to tamanho do
+    begin
+      letra:=copy(palavra,i,1);
+    if (letra=' ') then
+    begin
+      cont:=cont-1;
+    end
+    else
+    begin
+      cont:=cont+2;
+    end;
+    end;
+    if (cont<0) then
+    begin
+      messagedlg('AuxEnSoft não aceita campos vazios em excesso.',mterror,mbokcancel,0);
+      edtusuario.setfocus;
+      abort;
+    end;
+
+  tamanho:=length(edtsenha.text);
+  palavra:=edtsenha.text;
+  cont:=0;
+    for i:=1 to tamanho do
+    begin
+      letra:=copy(palavra,i,1);
+        if (letra=' ') then
+        begin
+          cont:=cont-1;
+        end
+        else
+        begin
+          cont:=cont+2;
+        end;
+    end;
+    if (cont<0) then
+    begin
+      messagedlg('AuxEnSoft não aceita campos vazios em excesso.',mterror,mbokcancel,0);
+      edtsenha.setfocus;
+      abort;
+    end;
+  conexao:=False;
+  //Verificar se existe no banco antes de cadastrar
+    with query do
+      query.close;
+      Query.sql.clear;
+      Query.sql.text:=('select * from tblogin where usuario=("'+edtusuario.text+'")');
+      query.Open;
+        if Query.IsEmpty then
+        begin
+          Query.SQL.Clear;
+          Query.SQL.Text:=('INSERT INTO tblogin (usuario, senha, datadocadastro) VALUES ("'+edtusuario.text+'","'+edtsenha.text+'","'+edtdatacad.text+'");');
+          Query.ExecSQL;
+          Conexao:=True;
+        end
+        else
+        begin
+          messagedlg('O "Usuário" já está cadastrados no nosso banco de dados, por favor escolha outro e tente novamente',mtinformation,mbokcancel,0);
+          edtusuario.SetFocus;
+          Abort;
+    end;
+
+    //Mensagem exibida após criar cadastro
+    if (conexao=true) then
+    begin
+      FormCriarCadastro.Close;
+      showmessage('Cadastro concluído com sucesso!');
+    end;
+end;
+procedure TFormCriarCadastro.SairClick(Sender: TObject);
+begin
+  //Fechar o programa
+  Application.Terminate;
+end;
+
+end.

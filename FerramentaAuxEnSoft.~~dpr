@@ -1,0 +1,24 @@
+program FerramentaAuxEnSoft;
+
+uses
+  Forms,
+  Inicio in 'Inicio.pas' {FormInicio},
+  InicioAjuda in 'InicioAjuda.pas' {FormInicioAjuda},
+  CriarCadastro in 'CriarCadastro.pas' {FormCriarCadastro},
+  CriarCadastroAjuda in 'CriarCadastroAjuda.pas' {FormCriarCadastroAjuda},
+  Home in 'Home.pas' {FormHome},
+  HomeAjuda in 'HomeAjuda.pas' {FormHomeAjuda},
+  CriarProjeto in 'CriarProjeto.pas' {FormCriarProjeto},
+  CriarProjetoAjuda in 'CriarProjetoAjuda.pas' {FormCriarProjetoAjuda},
+  AcessarProjeto in 'AcessarProjeto.pas' {FormAcessarProjeto},
+  ModeloCascata in 'ModeloCascata.pas' {FormModeloCascata};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.CreateForm(TFormInicio, FormInicio);
+  Application.CreateForm(TFormHome, FormHome);
+  Application.CreateForm(TFormModeloCascata, FormModeloCascata);
+  Application.Run;
+end.

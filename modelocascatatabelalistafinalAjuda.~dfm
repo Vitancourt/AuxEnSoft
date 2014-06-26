@@ -1,0 +1,17 @@
+object FormModeloCascataTabelaListaFinalAjuda: TFormModeloCascataTabelaListaFinalAjuda
+  Left = 496
+  Top = 300
+  BorderStyle = bsToolWindow
+  Caption = 'Ferramenta AuxEnSoft - Ajuda'
+  ClientHeight = 169
+  ClientWidth = 380
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  OldCreateOrder = False
+  PixelsPerInch = 96
+  TextHeight = 13
+end

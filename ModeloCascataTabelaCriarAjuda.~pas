@@ -1,0 +1,51 @@
+unit ModeloCascataTabelaCriarAjuda;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, Buttons;
+
+type
+  TFormModeloCascataTabelaCriarAjuda = class(TForm)
+    memoAjuda: TMemo;
+    btnVoltar: TBitBtn;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+    procedure btnVoltarClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FormModeloCascataTabelaCriarAjuda: TFormModeloCascataTabelaCriarAjuda;
+
+implementation
+
+{$R *.dfm}
+
+procedure TFormModeloCascataTabelaCriarAjuda.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  //Fecha o form e libera memória
+  FormModeloCacataTabelaCriarAjuda.Release;
+  FormModeloCacataTabelaCriarAjuda:=Nil;
+end;
+
+procedure TFormModeloCascataTabelaCriarAjuda.FormCreate(Sender: TObject);
+begin
+    //Centraliza form
+  Left := (GetSystemMetrics(SM_CXSCREEN) - Width) div 2;
+  Top := (GetSystemMetrics(SM_CYSCREEN) - Height) div 2;
+end;
+
+procedure TFormModeloCascataTabelaCriarAjuda.btnVoltarClick(
+  Sender: TObject);
+begin
+  //Fechar
+  FormModeloCascataTabelaCriarAjuda.Close;
+end;
+
+end.

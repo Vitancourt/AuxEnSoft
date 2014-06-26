@@ -1,0 +1,217 @@
+unit modelocascatacasodeusolistafinal;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, Menus, DB, ZAbstractRODataset, ZAbstractDataset, ZDataset,
+  Grids, DBGrids, StdCtrls, Buttons, ExtCtrls, RpCon, RpConDS, RpDefine,
+  RpRave;
+
+type
+  TFormModeloCascataCasoDeUsoListaFinal = class(TForm)
+    PanelaCadastro: TPanel;
+    lblCriarCasoDeUso: TLabel;
+    lblObjetivo: TLabel;
+    lblPreRequisitos: TLabel;
+    lblDescricao: TLabel;
+    edtNome: TLabeledEdit;
+    edtDataCriacao: TLabeledEdit;
+    memoObjetivo: TMemo;
+    memoPreRequisitos: TMemo;
+    memoDescricao: TMemo;
+    btnLimpar1: TBitBtn;
+    edtAtor: TLabeledEdit;
+    PanelLista: TPanel;
+    lblListaCasosDeUso: TLabel;
+    GridCasos: TDBGrid;
+    edtProcurar: TLabeledEdit;
+    btnVoltar: TBitBtn;
+    btnLimpar: TBitBtn;
+    btnVisulizar: TBitBtn;
+    Source: TDataSource;
+    query: TZQuery;
+    Menu: TMainMenu;
+    Ajuda: TMenuItem;
+    Logoff: TMenuItem;
+    btnImprimir: TBitBtn;
+    queryCasosDeUso: TZQuery;
+    conectaCasosDeUso: TRvDataSetConnection;
+    rvCasosDeUso: TRvProject;
+    btnDescricao: TBitBtn;
+    queryCasoDeUsoDesc: TZQuery;
+    ConectaCasoDeUsoDesc: TRvDataSetConnection;
+    rvCasoDeUsoDesc: TRvProject;
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure LogoffClick(Sender: TObject);
+    procedure edtNomeChange(Sender: TObject);
+    procedure btnVoltarClick(Sender: TObject);
+    procedure btnLimparClick(Sender: TObject);
+    procedure btnVisulizarClick(Sender: TObject);
+    procedure edtProcurarChange(Sender: TObject);
+    procedure btnLimpar1Click(Sender: TObject);
+    procedure btnImprimirClick(Sender: TObject);
+    procedure btnDescricaoClick(Sender: TObject);
+    procedure AjudaClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FormModeloCascataCasoDeUsoListaFinal: TFormModeloCascataCasoDeUsoListaFinal;
+
+implementation
+
+uses ModeloCascata, modelocascatacasodeusolistafinalAjuda;
+
+{$R *.dfm}
+
+procedure TFormModeloCascataCasoDeUsoListaFinal.FormCreate(
+  Sender: TObject);
+begin
+    //Centraliza form
+  Left := (GetSystemMetrics(SM_CXSCREEN) - Width) div 2;
+  Top := (GetSystemMetrics(SM_CYSCREEN) - Height) div 2;
+  //Seleciona os casos de uso do projeto
+  with query do
+  begin
+    query.close;
+    query.sql.Clear;
+    query.sql.text:=('select nome as Nome from tbcasodeuso where codigo_projeto=(select codigo_projeto from tbprojetoacesso order by codigo desc limit 1)');
+    query.open;
+  end;
+end;
+
+procedure TFormModeloCascataCasoDeUsoListaFinal.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  //Fecha o form
+  formmodelocascatacasodeusolistafinal.release;
+  formmodelocascatacasodeusolistafinal:=nil;
+end;
+
+procedure TFormModeloCascataCasoDeUsoListaFinal.LogoffClick(
+  Sender: TObject);
+begin
+  //Faz logoff e volta ao home
+  FormModeloCascata.Close;
+  FormModeloCascataCasoDeUsoListaFinal.Close;
+end;
+
+procedure TFormModeloCascataCasoDeUsoListaFinal.edtNomeChange(
+  Sender: TObject);
+begin
+  //Se tiver dados neste campo habilita o botão limpar
+  if (edtNome.text='') then
+  begin
+  btnLimpar1.enabled:=false;
+  end
+  else
+  begin
+  btnlimpar1.enabled:=true;
+  end;
+end;
+
+procedure TFormModeloCascataCasoDeUsoListaFinal.btnVoltarClick(
+  Sender: TObject);
+begin
+  //Fecha o form
+  FormModeloCascataCasoDeUsoListaFinal.Close;
+end;
+
+procedure TFormModeloCascataCasoDeUsoListaFinal.btnLimparClick(
+  Sender: TObject);
+begin
+  //limpa o edtprocuar
+  edtProcurar.Clear;
+end;
+
+procedure TFormModeloCascataCasoDeUsoListaFinal.btnVisulizarClick(
+  Sender: TObject);
+var
+  casodeuso:string;
+begin
+  //Da um select com os campos segundo nome selecionado no dbgrid
+  //Armazena o nome do caso de uso do dbgrid na variável
+  casodeuso:=(gridCasos.Columns.Items[0].Field).AsString;
+  //Se estiver vazio
+  if (casodeuso='') then
+  begin
+    showmessage('Por favor selecione um caso de uso na lista!');
+    GridCasos.SetFocus;
+    abort;
+  end;
+  with query do
+  begin
+    query.close;
+    query.sql.clear;
+    query.sql.text:=('select * from tbcasodeuso where nome="'+casodeuso+'" and codigo_projeto=(select codigo_projeto from tbprojetoacesso order by codigo desc limit 1)');
+    query.open;
+    edtNome.text:=Query.FieldByName('nome').AsString;
+    edtDataCriacao.text:=Query.FieldByName('data').AsString;
+    edtAtor.text:=Query.FieldByName('ator').AsString;
+    memoObjetivo.Lines.Text:=Query.FieldByName('objetivo').AsString;
+    memoPreRequisitos.Lines.Text:=Query.FieldByName('prerequisito').AsString;
+    memoDescricao.lines.text:=Query.FieldByName('descricao').AsString;
+  end;
+  //Atualiza o gridcasos
+  with query do
+  begin
+    query.close;
+    query.sql.clear;
+    query.sql.text:=('select nome as Nome from tbcasodeuso where codigo_projeto=(select codigo_projeto from tbprojetoacesso order by codigo desc limit 1)');
+    query.Open;
+  end;
+end;
+
+procedure TFormModeloCascataCasoDeUsoListaFinal.edtProcurarChange(
+  Sender: TObject);
+begin
+  //Da um select no tbcasodeuso segundo o que esta escrito
+  with query do
+  begin
+    query.close;
+    query.sql.clear;
+    query.sql.Text:=('select nome as Nome from tbcasodeuso where nome like "'+edtProcurar.text+'%" and codigo_projeto=(select codigo_projeto from tbprojetoacesso order by codigo desc limit 1)');
+    query.open;
+  end;
+end;
+
+procedure TFormModeloCascataCasoDeUsoListaFinal.btnLimpar1Click(
+  Sender: TObject);
+begin
+  //Limpa os campos
+  edtNome.clear;
+  edtDataCriacao.clear;
+  edtAtor.clear;
+  memoObjetivo.lines.clear;
+  memoPreRequisitos.lines.clear;
+  memoDescricao.Lines.clear;
+end;
+
+procedure TFormModeloCascataCasoDeUsoListaFinal.btnImprimirClick(
+  Sender: TObject);
+begin
+  //abre o relatório
+  rvCasosDeUso.execute;
+  rvcasosdeUso.Close;
+end;
+
+procedure TFormModeloCascataCasoDeUsoListaFinal.btnDescricaoClick(
+  Sender: TObject);
+begin
+  rvCasoDeUsoDesc.execute;
+  rvCasoDeUsoDesc.close;
+end;
+
+procedure TFormModeloCascataCasoDeUsoListaFinal.AjudaClick(
+  Sender: TObject);
+begin
+ Application.CreateForm(TformModeloCascataCasoDeUsoListaFinalAjuda, formModeloCascataCasoDeUsoListaFinalAjuda);
+ formModeloCascataCasoDeUsoListaFinalAjuda.showmodal;
+end;
+
+end.

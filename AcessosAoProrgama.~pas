@@ -1,0 +1,95 @@
+unit AcessosAoProrgama;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, Buttons, DB, ZAbstractRODataset, ZAbstractDataset,
+  ZDataset, Grids, DBGrids, DBClient, RpRave, RpDefine, RpCon, RpConDS,
+  RpBase, RpSystem;
+
+type
+  TFormAcessosAoPrograma = class(TForm)
+    btnVoltar: TBitBtn;
+    Query: TZQuery;
+    gridAcessos: TDBGrid;
+    Source: TDataSource;
+    lblCont: TLabel;
+    btnImprimir: TBitBtn;
+    RVConecta: TRvDataSetConnection;
+    rvSystem: TRvSystem;
+    RvProject: TRvProject;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+    procedure btnVoltarClick(Sender: TObject);
+    procedure btnImprimirClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FormAcessosAoPrograma: TFormAcessosAoPrograma;
+
+implementation
+
+uses Home;
+
+{$R *.dfm}
+
+procedure TFormAcessosAoPrograma.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  //Fechar o form e liberar memória
+  FormAcessosAoPrograma.Release;
+  FormAcessosAoPrograma:=Nil;
+end;
+
+procedure TFormAcessosAoPrograma.FormCreate(Sender: TObject);
+var
+  //Variável para exibir quantidade de acessos
+  cont:integer;
+  data1,data2:TDate;
+  hora1,hora2:TTime;
+begin
+  //Centraliza form
+  Left := (GetSystemMetrics(SM_CXSCREEN) - Width) div 2;
+  Top := (GetSystemMetrics(SM_CYSCREEN) - Height) div 2;
+  //Conta quando acessos tem e exibe no label
+  with query do
+  begin
+    Query.Close;
+    Query.SQL.Clear;
+    Query.SQL.Text:=('select COUNT(codigo) as Quantidade from tbacesso where codigo_login=(select codigo_login from tbacesso order by codigo desc limit 1)');
+    Query.Open;
+    Cont:=Query.FieldByName('Quantidade').AsInteger;
+    lblCont.caption:='Número de acessos '+IntToStr(cont);
+  end;
+  //Seleciona os dados no banco e atualiza
+  with query do
+  begin
+    Query.Close;
+    Query.SQL.Clear;
+    Query.SQL.text:=('select data_acesso as Data, hora_acesso as Hora , data_saida as Datasaida, hora_saida as Horasaida from tbacesso where codigo_login=(select codigo_login from tbacesso order by codigo desc limit 1) order by codigo desc');
+    Query.Open;
+    query.Last;
+    data1:=query.fieldbyname('Data').AsDate;
+    data2:=query.fieldbyname('Datasaida').AsDate;
+    showmessage(DateToStr(data1-data2));
+  end;
+end;
+
+procedure TFormAcessosAoPrograma.btnVoltarClick(Sender: TObject);
+begin
+  //Fecha o FormAcessosAoPrograma e exibe o FormHome
+  FormAcessosAoPrograma.Close;
+  FormHome.Show;
+end;
+
+procedure TFormAcessosAoPrograma.btnImprimirClick(Sender: TObject);
+begin
+  rvProject.Execute;
+end;
+
+end.
